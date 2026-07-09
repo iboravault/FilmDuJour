@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="pageTitleTag">FILM DU JOUR — Sélection quotidienne</title>
+<meta name="description" content="Une sélection quotidienne de films présentée dans une interface premium au style terminal, minimaliste et sans compromis.">
+
+<!-- Open Graph -->
+<meta property="og:title" content="FILM DU JOUR">
+<meta property="og:description" content="Une sélection quotidienne de films présentée dans une interface premium au style terminal.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/backgrounds/og-cover.jpg">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="FILM DU JOUR">
+<meta name="twitter:description" content="Une sélection quotidienne de films, présentée avec une esthétique terminal premium.">
+
+<link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml">
+<link rel="preload" as="style" href="style.css">
+<link rel="stylesheet" href="style.css">
+
+<!-- Données structurées JSON-LD -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Film du Jour",
+  "description": "Sélection quotidienne de films, fiches détaillées et statistiques."
+}
+</script>
+</head>
+<body>
+
+<div class="noise-layer" aria-hidden="true"></div>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="index.html" class="brand" aria-label="Accueil">
+      <span class="brand-dot" aria-hidden="true"></span>
+      <span id="siteTitle">FILM DU JOUR</span>
+      <span class="brand-prompt">/selection</span>
+    </a>
+    <div class="topbar-actions">
+      <nav style="display:flex; gap:4px;" aria-label="Navigation principale">
+        <button id="tabHome" class="btn btn-ghost btn-sm active" style="border:1px solid var(--border)">Accueil</button>
+        <button id="tabStats" class="btn btn-ghost btn-sm" style="border:1px solid var(--border)">Statistiques</button>
+      </nav>
+      <div class="view-switch" role="group" aria-label="Mode d'affichage">
+        <button data-view="grid" class="active" aria-label="Vue grille">Grille</button>
+        <button data-view="list" aria-label="Vue liste">Liste</button>
+        <button data-view="compact" aria-label="Vue compacte">Compact</button>
+        <button data-view="cinema" aria-label="Mode cinéma">Cinéma</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="container">
+
+  <!-- ======================= VUE ACCUEIL ======================= -->
+  <section id="homeView">
+    <section class="hero">
+      <div class="hero-eyebrow">catalogue.init()</div>
+      <h1>Sélection du jour<span class="cursor" aria-hidden="true"></span></h1>
+      <p class="lead">Cinq films, choisis et documentés en détail. Interface minimaliste, données complètes, aucune distraction.</p>
+    </section>
+
+    <div class="controls">
+      <div class="search-box">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input id="searchInput" type="search" placeholder="Rechercher un titre, un acteur, un réalisateur..." aria-label="Rechercher un film">
+      </div>
+      <select id="sortSelect" aria-label="Trier par">
+        <option value="popularity">Popularité</option>
+        <option value="imdb">Note IMDb</option>
+        <option value="year">Année</option>
+        <option value="alpha">Alphabétique</option>
+        <option value="duration">Durée</option>
+      </select>
+      <button id="filtersToggle" class="filters-toggle">Filtres ▾</button>
+    </div>
+
+    <div id="filtersPanel" class="filters-panel">
+      <div class="filter-group">
+        <label for="filterGenre">Genre</label>
+        <select id="filterGenre"></select>
+      </div>
+      <div class="filter-group">
+        <label for="filterCountry">Pays</label>
+        <select id="filterCountry"></select>
+      </div>
+      <div class="filter-group">
+        <label for="filterYear">Année</label>
+        <select id="filterYear"></select>
+      </div>
+      <div class="filter-group">
+        <label for="filterAge">Âge conseillé</label>
+        <select id="filterAge"></select>
+      </div>
+      <div class="filter-group">
+        <label for="filterMinRating">Note IMDb minimale</label>
+        <select id="filterMinRating">
+          <option value="0">Toutes notes</option>
+          <option value="9">9+</option>
+          <option value="8">8+</option>
+          <option value="7">7+</option>
+          <option value="6">6+</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="filmsGrid" class="view-grid" aria-live="polite"></div>
+  </section>
+
+  <!-- ======================= VUE STATISTIQUES ======================= -->
+  <section id="statsView" style="display:none;">
+    <section class="hero" style="padding-top:44px;">
+      <div class="hero-eyebrow">stats.compute()</div>
+      <h1>Statistiques</h1>
+      <p class="lead">Un aperçu global du catalogue actuellement affiché.</p>
+    </section>
+    <div id="statsContent"></div>
+  </section>
+
+</main>
+
+<!-- ======================= MODAL FICHE DÉTAILLÉE ======================= -->
+<div id="modalOverlay" class="modal-overlay" aria-hidden="true"></div>
+
+<!-- ======================= TOAST ======================= -->
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<footer>
+  <div class="container footer-inner">
+    <p>© 2026 Film du Jour — v1.0.0</p>
+    <div class="footer-links">
+      <a href="https://github.com" target="_blank" rel="noopener">GitHub</a>
+      <a href="#">Licence MIT</a>
+      <a href="admin.html">Admin</a>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
