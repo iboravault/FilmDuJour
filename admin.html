@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Administration — Film du Jour</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="style.css">
+<style>
+  .admin-wrap{ padding:40px 0 100px; }
+  .admin-grid{ display:grid; grid-template-columns:260px 1fr; gap:32px; align-items:start; }
+  .admin-nav{ position:sticky; top:90px; display:flex; flex-direction:column; gap:4px; }
+  .admin-nav button{
+    text-align:left; background:transparent; border:1px solid transparent; color:var(--muted);
+    padding:10px 12px; border-radius:var(--btn-radius); font-family:var(--font-display); font-size:12.5px;
+  }
+  .admin-nav button.active, .admin-nav button:hover{ background:var(--surface); color:var(--text); border-color:var(--border-soft); }
+  .admin-panel{ display:none; }
+  .admin-panel.active{ display:block; }
+  .field-row{ display:grid; grid-template-columns:200px 1fr; gap:16px; align-items:start; padding:14px 0; border-bottom:1px solid var(--border-soft); }
+  .field-row label{ font-family:var(--font-display); font-size:12px; color:var(--muted); padding-top:9px; }
+  .field-row input, .field-row textarea, .field-row select{
+    width:100%; background:var(--surface); border:1px solid var(--border); color:var(--text);
+    padding:9px 12px; border-radius:var(--btn-radius); font-family:var(--font-body); font-size:13.5px;
+  }
+  .field-row textarea{ min-height:80px; resize:vertical; }
+  .field-row small{ color:var(--muted-2); font-size:11px; display:block; margin-top:4px; }
+  .film-tabs{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:24px; }
+  .film-tabs button{
+    font-family:var(--font-display); font-size:12px; padding:8px 14px; border-radius:20px;
+    border:1px solid var(--border); background:transparent; color:var(--muted);
+  }
+  .film-tabs button.active{ background:var(--accent); color:#050505; border-color:var(--accent); }
+  .card-block{ background:var(--surface); border:1px solid var(--border-soft); border-radius:var(--card-radius); padding:24px; margin-bottom:24px; }
+  .card-block h2{ font-size:15px; margin-bottom:6px; }
+  .card-block .desc{ color:var(--muted); font-size:12.5px; margin-bottom:18px; }
+  .toolbar{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:28px; }
+  .color-input{ display:flex; align-items:center; gap:10px; }
+  .color-input input[type=color]{ width:44px; height:36px; padding:2px; background:var(--surface); border:1px solid var(--border); }
+  .status-line{ font-family:var(--font-display); font-size:11px; color:var(--muted-2); margin-top:6px; }
+  .checkbox-row{ display:flex; align-items:center; gap:10px; }
+  .checkbox-row input{ width:auto; }
+  textarea#jsonExportArea{ min-height:260px; font-family:var(--font-display); font-size:12px; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <a href="index.html" class="brand">
+      <span class="brand-dot"></span>
+      <span>FILM DU JOUR</span>
+      <span class="brand-prompt">/admin</span>
+    </a>
+    <div class="topbar-actions">
+      <a href="index.html" class="btn btn-sm">← Retour au site</a>
+    </div>
+  </div>
+</header>
+
+<main class="container admin-wrap">
+  <div class="hero-eyebrow" style="margin-bottom:8px;">admin.access_granted</div>
+  <h1 style="font-size:28px; margin-bottom:8px;">Interface d'administration</h1>
+  <p style="color:var(--muted); max-width:620px; margin-bottom:32px;">
+    Modifiez le contenu et l'apparence du site directement depuis cette page.
+    Les changements sont enregistrés localement (navigateur) et appliqués immédiatement sur le site.
+    Pour rendre les changements permanents sur GitHub Pages, exportez le JSON et remplacez le contenu de <code>films.json</code> dans votre dépôt.
+  </p>
+
+  <div class="admin-grid">
+    <nav class="admin-nav">
+      <button data-panel="panelFilms" class="active">🎬 Films</button>
+      <button data-panel="panelTheme">🎨 Couleurs & police</button>
+      <button data-panel="panelSizes">📐 Tailles</button>
+      <button data-panel="panelEffects">✨ Animations</button>
+      <button data-panel="panelGeneral">⚙️ Général</button>
+      <button data-panel="panelExport">⬇️ Export / Import</button>
+    </nav>
+
+    <div>
+      <!-- ======================= FILMS ======================= -->
+      <section id="panelFilms" class="admin-panel active">
+        <div class="toolbar">
+          <button class="btn btn-primary" id="addFilmBtn">+ Ajouter un film</button>
+          <button class="btn" id="deleteFilmBtn">Supprimer ce film</button>
+        </div>
+        <div class="film-tabs" id="filmTabs"></div>
+
+        <div class="card-block" id="filmEditor"></div>
+      </section>
+
+      <!-- ======================= THEME ======================= -->
+      <section id="panelTheme" class="admin-panel">
+        <div class="card-block">
+          <h2>Couleurs</h2>
+          <p class="desc">Toutes les couleurs de l'interface, appliquées instantanément.</p>
+          <div class="field-row"><label>Fond</label><div class="color-input"><input type="color" id="c_bg"><input type="text" id="c_bg_hex"></div></div>
+          <div class="field-row"><label>Cartes / surfaces</label><div class="color-input"><input type="color" id="c_surface"><input type="text" id="c_surface_hex"></div></div>
+          <div class="field-row"><label>Bordures</label><div class="color-input"><input type="color" id="c_border"><input type="text" id="c_border_hex"></div></div>
+          <div class="field-row"><label>Texte</label><div class="color-input"><input type="color" id="c_text"><input type="text" id="c_text_hex"></div></div>
+          <div class="field-row"><label>Texte atténué</label><div class="color-input"><input type="color" id="c_muted"><input type="text" id="c_muted_hex"></div></div>
+          <div class="field-row"><label>Accent / glow</label><div class="color-input"><input type="color" id="c_accent"><input type="text" id="c_accent_hex"></div></div>
+        </div>
+        <div class="card-block">
+          <h2>Police</h2>
+          <div class="field-row"><label>Police (titres)</label><input type="text" id="f_display" placeholder="'JetBrains Mono', monospace"></div>
+          <div class="field-row"><label>Police (texte)</label><input type="text" id="f_body" placeholder="'Inter', sans-serif"></div>
+        </div>
+      </section>
+
+      <!-- ======================= TAILLES ======================= -->
+      <section id="panelSizes" class="admin-panel">
+        <div class="card-block">
+          <h2>Tailles</h2>
+          <div class="field-row"><label>Largeur des cartes (px)</label><input type="number" id="s_cardwidth" min="200" max="500"></div>
+          <div class="field-row"><label>Arrondi des cartes (px)</label><input type="number" id="s_cardradius" min="0" max="30"></div>
+          <div class="field-row"><label>Échelle du texte</label><input type="number" id="s_textscale" min="0.8" max="1.4" step="0.05"></div>
+          <div class="field-row"><label>Nombre de cartes affichées</label><input type="number" id="s_maxcards" min="1" max="20"></div>
+        </div>
+      </section>
+
+      <!-- ======================= ANIMATIONS ======================= -->
+      <section id="panelEffects" class="admin-panel">
+        <div class="card-block">
+          <h2>Animations & effets</h2>
+          <div class="field-row"><label>Fade à l'apparition</label><div class="checkbox-row"><input type="checkbox" id="e_fade"></div></div>
+          <div class="field-row"><label>Zoom au survol</label><div class="checkbox-row"><input type="checkbox" id="e_zoom"></div></div>
+          <div class="field-row"><label>Glow au survol</label><div class="checkbox-row"><input type="checkbox" id="e_glow"></div></div>
+          <div class="field-row"><label>Transitions générales</label><div class="checkbox-row"><input type="checkbox" id="e_transitions"></div></div>
+          <div class="field-row"><label>Parallaxe légère</label><div class="checkbox-row"><input type="checkbox" id="e_parallax"></div></div>
+        </div>
+      </section>
+
+      <!-- ======================= GENERAL ======================= -->
+      <section id="panelGeneral" class="admin-panel">
+        <div class="card-block">
+          <h2>Général</h2>
+          <div class="field-row"><label>Titre du site</label><input type="text" id="g_title"></div>
+        </div>
+      </section>
+
+      <!-- ======================= EXPORT ======================= -->
+      <section id="panelExport" class="admin-panel">
+        <div class="card-block">
+          <h2>Exporter / Importer</h2>
+          <p class="desc">GitHub Pages étant un hébergement statique, les modifications ne peuvent pas être écrites automatiquement sur le dépôt. Copiez le JSON ci-dessous et remplacez le contenu de <code>films.json</code> dans votre projet, puis publiez.</p>
+          <div class="toolbar">
+            <button class="btn btn-primary" id="generateExportBtn">Générer l'export JSON</button>
+            <button class="btn" id="copyExportBtn">Copier</button>
+            <button class="btn" id="downloadExportBtn">Télécharger films.json</button>
+            <button class="btn btn-ghost" id="resetBtn">Réinitialiser les modifications locales</button>
+          </div>
+          <textarea id="jsonExportArea" readonly></textarea>
+          <p class="status-line" id="exportStatus"></p>
+        </div>
+      </section>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+<script src="admin.js"></script>
+</body>
+</html>
